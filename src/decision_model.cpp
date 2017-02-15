@@ -1345,7 +1345,7 @@ double DecisionModelDiscretePrior::backpropagate_value(double rho, bool compute_
 		for (j=0;j<n;++j){
 			v_explore[j] = 0.;
 			invg[curr_invg][j] = g2x(t_i,g[j],invg[fut_invg][j]);
-			if (isnan(invg[curr_invg][j])){
+			if (std::isnan(invg[curr_invg][j])){
 				invg[curr_invg][j] = g2x(t_i,g[j],0.);
 			}
 			norm_p = 0.;
@@ -1383,9 +1383,9 @@ double DecisionModelDiscretePrior::backpropagate_value(double rho, bool compute_
 				#endif
 			}
 			// Then normalize and compute the value of exploring
-			if (isinf(maxp)){
+			if (std::isinf(maxp)){
 				for (k=0;k<n;++k){
-					p[k] = (isinf(p[k]) && p[k]>0) ? 1. : 0;
+					p[k] = (std::isinf(p[k]) && p[k]>0) ? 1. : 0;
 					norm_p+= p[k];
 					v_explore[j]+= p[k]*value[k];
 				}
@@ -1556,7 +1556,7 @@ double DecisionModelDiscretePrior::backpropagate_value(double rho, bool compute_
 		for (j=0;j<n;++j){
 			v_explore[j+i*n] = 0.;
 			invg[curr_invg][j] = g2x(t_i,g[j],invg[fut_invg][j]);
-			if (isnan(invg[curr_invg][j])){
+			if (std::isnan(invg[curr_invg][j])){
 				invg[curr_invg][j] = g2x(t_i,g[j],0.);
 			}
 			norm_p = 0.;
@@ -1594,9 +1594,9 @@ double DecisionModelDiscretePrior::backpropagate_value(double rho, bool compute_
 				#endif
 			}
 			// Then normalize and compute the value of exploring
-			if (isinf(maxp)){
+			if (std::isinf(maxp)){
 				for (k=0;k<n;++k){
-					p[k] = (isinf(p[k]) && p[k]>0) ? 1. : 0;
+					p[k] = (std::isinf(p[k]) && p[k]>0) ? 1. : 0;
 					norm_p+= p[k];
 					v_explore[j+i*n]+= p[k]*value[j+(i+1)*n];
 				}
