@@ -420,7 +420,7 @@ _fit_output = {_fit_output}
 		if trials==0:
 			raise RuntimeError('No trials can be fitted')
 		
-		self.contrast = (dat['contrast']-self._distractor)/self._ISI
+		self.contrast = np.abs(dat['contrast']-self._distractor)/self._ISI
 		self.performance = dat['performance']
 		self.confidence = dat['confidence']
 		if not self.dm.known_variance():
@@ -1036,6 +1036,9 @@ _fit_output = {_fit_output}
 							self.logger.debug('Starting to adjust performance with psychometric curve for unknown variance')
 							fun = lambda a: (np.mean(self.performance)-np.sum(self.stim_prob/(1.+np.exp(-0.596*self.unique_stim[:,0]/np.sqrt(self.unique_stim[:,1]+a**2)))))**2
 						res = minimize(fun,1000.,method='Nelder-Mead')
+						self.logger.debug('Starting internal_var fit result: {0}'.format(res))
+						if not res.success:
+							self.logger.warning('Starting internal_var fit did not succeed. Fit output: {0}'.format(res))
 					self.__default_start_point__['internal_var'] = res.x[0]**2
 				except Exception as e:
 					self.logger.warning('Could not fit internal_var from data')
@@ -1131,6 +1134,8 @@ _fit_output = {_fit_output}
 		defaults['phase_out_prob'] = [0.,0.2]
 		default_sp = self.default_start_point()
 		defaults['internal_var'] = [default_sp['internal_var']*0.2,default_sp['internal_var']*1.8]
+		if defaults['internal_var'][1]<0.01:
+			defaults['internal_var'][1] = 0.01
 		invariant_decision_bounds = ('cost' in self.get_fixed_parameters().keys() and 'internal_var' in self.get_fixed_parameters().keys()) or \
 									self.method in ['confidence_only','binary_confidence_only']
 		if self.confidence_mapping_method=='log_odds':
