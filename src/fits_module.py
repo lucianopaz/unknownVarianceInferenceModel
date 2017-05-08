@@ -443,6 +443,7 @@ _fit_output = {_fit_output}
 			p = np.concatenate((self.mu_prob[::-1],self.mu_prob))*0.5
 		
 		self._prior_mu_var = np.sum(p*(mus-np.sum(p*mus))**2)
+		self.dm.prior_mu_var = self._prior_mu_var
 		self.logger.debug('Setted Fitter _prior_mu_var = %f',self._prior_mu_var)
 	
 	def __setstate__(self,state):
