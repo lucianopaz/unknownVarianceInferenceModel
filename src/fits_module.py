@@ -1704,7 +1704,7 @@ _fit_output = {_fit_output}
 					self.__fit_internals__['first_passage_times'][drift] = gs
 				else:
 					gs = self.__fit_internals__['first_passage_times'][drift]
-				conf_lik_pdf = np.sum(self.dm.rt_confidence_pdf(gs,mapped_confidences,dead_time_convolver),axis=2)
+				conf_lik_pdf = np.sum(self.dm.rt_confidence_pdf(gs,confidence_response=mapped_confidences,dead_time_convolver=dead_time_convolver,confidence_partition=self.confidence_partition),axis=2)
 				indeces = self.mu_indeces==index
 				for perf,conf in zip(self.performance[indeces],self.confidence[indeces]):
 					nlog_likelihood-=np.log(confidence_likelihood(conf_lik_pdf[1-int(perf)],conf)*(1-parameters['phase_out_prob'])+random_rt_likelihood)
