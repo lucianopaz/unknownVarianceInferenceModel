@@ -24,6 +24,7 @@
 build/*
 lib/*
 lib64/*
+*.egg-info*
 
 # Fits directory
 fits_cognition/

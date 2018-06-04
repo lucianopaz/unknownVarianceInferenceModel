@@ -16,7 +16,7 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 import enum, os, sys, math, scipy, pickle, warnings, json, logging, logging.config, copy, re
 import scipy.signal
 import numpy as np
-from utils import normpdf,average_downsample,parse_details_file,unique_rows
+from .utils import normpdf, average_downsample, parse_details_file, unique_rows
 
 try:
 	with warnings.catch_warnings():
@@ -29,8 +29,8 @@ try:
 	can_plot = True
 except:
 	can_plot = False
-import data_io as io
-from decision_model import DecisionModel
+from . import data_io as io
+from .decision_model import DecisionModel
 import cma
 
 package_logger = logging.getLogger("fits_module")

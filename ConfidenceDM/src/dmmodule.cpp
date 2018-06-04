@@ -16,6 +16,13 @@ Year: 2016
 #undef CUSTOM_NPY_1_7_API_VERSION
 #include "decision_model.hpp"
 
+
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_AS_LONG PyLong_AS_LONG
+#define PyInt_AS_LONG PyLong_AS_LONG
+#define PyInt_FromLong PyLong_FromLong
+#endif
+
 #include <cmath>
 #include <cstdio>
 
@@ -1071,7 +1078,7 @@ static PyObject* dmmod_testsuite(PyObject* self, PyObject* args, PyObject* keywd
 	return Py_BuildValue("(OOOOOOOOOOOOOO)", dict1, dict2, dict3, PyFloat_FromDouble(t), py_x, py_g1, py_g2, py_g3, py_dg1, py_dg2, py_dg3, py_x1, py_x2, py_x3);
 }
 
-static PyMethodDef CDMMethods[] = {
+static PyMethodDef DMModuleMethods[] = {
     {"xbounds", (PyCFunction) dmmod_xbounds, METH_VARARGS | METH_KEYWORDS,
      "Computes the decision bounds in x(t) space (i.e. the accumulated sensory input space)\n\n  (xub, xlb) = xbounds(dp, tolerance=1e-12, set_rho=False, set_bounds=False, return_values=False, root_bounds=None)\n\n(xub, xlb, value, v_explore, v1, v2) = xbounds(dp, ..., return_values=True)\n\nComputes the decision bounds for a DecisionModel instance specified in 'dp'.\nThis function is more memory and computationally efficient than calling dp.invert_belief();dp.value_dp(); xb = dp.belief_bound_to_x_bound(b); from python. Another difference is that this function returns a tuple of (upper_bound, lower_bound) instead of a numpy array whose first element is upper_bound and second element is lower_bound.\n'tolerance' is a float that indicates the tolerance when searching for the rho value that yields value[int(n/2)]=0.\n'set_rho' must be an expression whose 'truthness' can be evaluated. If set_rho is True, the rho attribute in the python dp object will be set to the rho value obtained after iteration. If false, it will not be set.\n'set_bounds' must be an expression whose 'truthness' can be evaluated. If set_bounds is True, the python DecisionModel object's ´bounds´ attribute will be set to the upper and lower bounds in g space computed in the c++ instance. If false, it will do nothing.\nIf 'return_values' evaluates to True, then the function returns four extra numpy arrays: value, v_explore, v1 and v2. 'value' is an nT by n shaped array that holds the value of a given g at time t. 'v_explore' has shape nT-1 by n and holds the value of exploring at time t with a given g. v1 and v2 are values of immediately deciding for option 1 or 2, and are one dimensional arrays with n elements.\n'root_bounds' must be a tuple of two elements: (lower_bound, upper_bound). Both 'lower_bound' and 'upper_bound' must be floats that represent the lower and upper bounds in which to perform the root finding of rho.\n\n"},
     {"xbounds_fixed_rho", (PyCFunction) dmmod_xbounds_fixed_rho, METH_VARARGS | METH_KEYWORDS,
@@ -1088,25 +1095,25 @@ static PyMethodDef CDMMethods[] = {
 
 #if PY_MAJOR_VERSION >= 3
     /* module initialisation for Python 3 */
-    static struct PyModuleDef cdmmodule = {
+    static struct PyModuleDef dmmodulemodule = {
        PyModuleDef_HEAD_INIT,
-       "cdm",   /* name of module */
+       "dmmodule",   /* name of module */
        "Module to compute the decision bounds and values for bayesian inference",
        -1,
-       CDMMethods
+       DMModuleMethods
     };
 
-    PyMODINIT_FUNC PyInit_cdm(void)
+    PyMODINIT_FUNC PyInit_dmmodule(void)
     {
-        PyObject *m = PyModule_Create(&cdmmodule);
+        PyObject *m = PyModule_Create(&dmmodulemodule);
         import_array();
         return m;
     }
 #else
     /* module initialisation for Python 2 */
-    PyMODINIT_FUNC initcdm(void)
+    PyMODINIT_FUNC initdmmodule(void)
     {
-        Py_InitModule("cdm", CDMMethods);
+        Py_InitModule("dmmodule", DMModuleMethods);
         import_array();
     }
 #endif

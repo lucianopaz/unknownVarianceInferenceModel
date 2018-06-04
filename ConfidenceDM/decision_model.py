@@ -15,18 +15,19 @@ Year: 2016
 """
 
 
-from __future__ import division, print_function, absolute_import, unicode_literals
+from __future__ import (division, print_function, absolute_import,
+                        unicode_literals)
 import numpy as np
 from scipy.signal import fftconvolve
 from scipy import io
 from scipy import optimize
 import math, copy, sys, warnings
-from utils import normcdf,normcdfinv,normpdf,average_downsample
+from .utils import normcdf, normcdfinv, normpdf, average_downsample
 try:
-	import cdm
-except Exception:
-	print("cost_time.py requires the c++ compiled extension lib cdm.so available")
-	raise
+    from . import dmmodule
+except ImportError:
+    raise ImportError('C++ extension module could not be imported, please '
+                      'rebuild the package or submit an issue in github.')
 
 class DecisionModel():
 	"""
@@ -438,29 +439,40 @@ bounds = {bounds}
 				out[...] = optimize.newton(f, 0., fprime=fprime)
 			return it.operands[2]
 	
-	def xbounds(self, tolerance=1e-12, set_rho=True, set_bounds=True, return_values=False, root_bounds=None):
-		return cdm.xbounds(self,tolerance=tolerance, set_rho=set_rho, set_bounds=set_bounds, return_values=return_values, root_bounds=root_bounds)
-	xbounds.__doc__ = cdm.xbounds.__doc__
+	def xbounds(self, tolerance=1e-12, set_rho=True, set_bounds=True,
+                return_values=False, root_bounds=None):
+		return dmmodule.xbounds(self,tolerance=tolerance, set_rho=set_rho,
+                                set_bounds=set_bounds,
+                                return_values=return_values,
+                                root_bounds=root_bounds)
+	xbounds.__doc__ = dmmodule.xbounds.__doc__
 	
-	def xbounds_fixed_rho(self, rho=None, set_bounds=False, return_values=False):
-		return cdm.xbounds_fixed_rho(self,rho=rho, set_bounds=set_bounds, return_values=return_values)
-	xbounds_fixed_rho.__doc__ = cdm.xbounds_fixed_rho.__doc__
+	def xbounds_fixed_rho(self, rho=None, set_bounds=False,
+                          return_values=False):
+		return dmmodule.xbounds_fixed_rho(self,rho=rho, set_bounds=set_bounds,
+                                          return_values=return_values)
+	xbounds_fixed_rho.__doc__ = dmmodule.xbounds_fixed_rho.__doc__
 	
 	def values(self, rho=None):
-		return cdm.values(self,rho=rho)
-	values.__doc__ = cdm.values.__doc__
+		return dmmodule.values(self,rho=rho)
+	values.__doc__ = dmmodule.values.__doc__
 	
 	def fpt(self,mu,model_var=None,bounds=None):
-		return cdm.fpt(self,mu,model_var=model_var,bounds=bounds)
-	fpt.__doc__ = cdm.fpt.__doc__
+		return dmmodule.fpt(self,mu,model_var=model_var,bounds=bounds)
+	fpt.__doc__ = dmmodule.fpt.__doc__
 	
-	def fpt_conf_matrix(self,first_passage_time, confidence_response, confidence_partition=100):
-		return cdm.fpt_conf_matrix(self,first_passage_time, confidence_response, confidence_partition=confidence_partition)
-	fpt_conf_matrix.__doc__ = cdm.fpt_conf_matrix.__doc__
+	def fpt_conf_matrix(self,first_passage_time, confidence_response,
+                        confidence_partition=100):
+		return dmmodule.fpt_conf_matrix(self,first_passage_time,
+                                  confidence_response,
+                                  confidence_partition=confidence_partition)
+	fpt_conf_matrix.__doc__ = dmmodule.fpt_conf_matrix.__doc__
 	
-	def rt_confidence_pdf(self,first_passage_time, confidence_response, dead_time_convolver, confidence_partition=100):
+	def rt_confidence_pdf(self,first_passage_time, confidence_response,
+                          dead_time_convolver, confidence_partition=100):
 		"""
-		rt_confidence_pdf(self,first_passage_time, confidence_response, dead_time_convolver, confidence_partition=100)
+		rt_confidence_pdf(self,first_passage_time, confidence_response,
+                          dead_time_convolver, confidence_partition=100)
 		
 		This method computes the joint probability of a given response time,
 		confidence and performance for the supplied model parameters and
@@ -862,7 +874,7 @@ def sim_rt(mu,var_rate,dt,T,xb,reps=10000):
 	return out
 
 def _test():
-	out = cdm.testsuite()
+	out = dmmodule.testsuite()
 	dict1,dict2,dict3,t,cx,cg1,cg2,cg3,cdg1,cdg2,cdg3,cx1,cx2,cx3 = out
 	dict1['T'] = dict2['T'] = dict3['T'] = 3.
 	d1 = DecisionModel(**dict1)

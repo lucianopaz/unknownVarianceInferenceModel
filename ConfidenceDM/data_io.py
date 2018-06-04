@@ -15,7 +15,7 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 import numpy as np
 import scipy.io
 import os, itertools, sys, random, re, scipy.integrate, logging
-from utils import parse_details_file
+from .utils import parse_details_file
 
 package_logger = logging.getLogger("data_io")
 package_logger.debug('Parsing details file')
@@ -233,7 +233,7 @@ class SubjectSession:
 			session = self.session_parser(f)
 			raw_data = self.raw_data_loader(f)
 			
-			mandatory_fields = ['contrast','rt','performance','confidence'] # variance is another important field if the fits are done with an unknown variance decision model
+			mandatory_fields = ['contrast','rt','performance','confidence','action'] # variance is another important field if the fits are done with an unknown variance decision model
 			fields = []
 			for mf in mandatory_fields:
 				if mf not in self.data_fields:

@@ -34,6 +34,6 @@ begin experiment ConfExp
 									"confidence": "lambda x: x[2][1:]-1",\
 									"contrast": "lambda x: x[3][1:]",\
 									"variance": "lambda x: x[5][1:]",\
-									"side": "lambda x: x[6][1:]",\
+									"action": "lambda x: x[6][1:]",\
 									"performance": "lambda x: x[7][1:]"}}
 end experiment ConfExp

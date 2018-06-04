@@ -9,11 +9,9 @@ If you use the code in this repo for an academic purpose, we please ask that you
 INSTALATION
 ===========
 
-This is not a package yet, it is a collection of scripts and a custom c++ extension that must be locally compiled. You must then place the .py files in the PYTHONPATH to be able to import them into other appliactions, or you must cd to their containing src folder. The custom c++ extension must be compiled using
+You just have to run
 
-python setup.py install --prefix=./ && mv lib/python2.7/site-packages/*.so . && rm -r build/ lib/
-
-This will build the cdm.so shared library and place it in the current folder so it can be imported by the rest of the .py functions in this repo.
+    python setup.py install
 
 USAGE
 =====
