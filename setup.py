@@ -69,8 +69,13 @@ setuptools.setup(name = 'ConfidenceDM',
                                      'scipy>=1',
                                      'six',
                                      'cma>=2.5',
-                                     'enum',
                                     ],
+                entry_points={
+                     'console_scripts': [
+                         'ConfidenceDM_fitter = ConfidenceDM.fits_module:'
+                                                'main_entry_point',
+                     ],
+                 },
                  # metadata for upload to PyPI
                  author="Luciano Paz",
                  author_email="lpaz@sissa.it",

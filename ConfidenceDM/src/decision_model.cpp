@@ -1772,17 +1772,19 @@ double DecisionModelUnknownDiscreteVar::backpropagate_value(double rho, bool com
 	// Compute the value at the time limit T, where the subject must decide
 	for (i=0;i<n;++i){
 		// Value of deciding option 1
-		v1[i] = reward*g[i]-penalty*(1.-g[i]) - (iti+(1.-g[i])*tp)*rho;
+		v1[i] = reward * g[i] - penalty * (1. - g[i]) -
+                (iti + (1. - g[i]) * tp) * rho;
 		// Value of deciding option 2
-		v2[i] = reward*(1.-g[i])-penalty*g[i] - (iti+g[i]*tp)*rho;
+		v2[i] = reward * (1. - g[i]) - penalty * g[i] -
+                (iti + g[i] * tp) * rho;
 		// Value of the belief g[i]
-		value[i] = v1[i]>=v2[i] ? v1[i] : v2[i];
+		value[i] = v1[i] >= v2[i] ? v1[i] : v2[i];
 		// We compute invg that is the x(t) that corresponds to having g[i] at time T
 		// and store it to save computations
 		if (i==0){
-			invg[fut_invg][i] = g2x(t[nT-1],g[i]);
+			invg[fut_invg][i] = g2x(t[nT-1], g[i]);
 		} else {
-			invg[fut_invg][i] = g2x(t[nT-1],g[i],invg[fut_invg][i-1]);
+			invg[fut_invg][i] = g2x(t[nT-1], g[i], invg[fut_invg][i-1]);
 		}
 		#ifdef DEBUG
 		if (i<n-1){
@@ -1793,91 +1795,99 @@ double DecisionModelUnknownDiscreteVar::backpropagate_value(double rho, bool com
 		#endif
 	}
 	if (compute_bounds){
-		this->lb[bound_strides*(nT-1)] = 0.5;
-		this->ub[bound_strides*(nT-1)] = 0.5;
+		this->lb[bound_strides * (nT - 1)] = 0.5;
+		this->ub[bound_strides * (nT - 1)] = 0.5;
 	}
 	
 	
-	for (j=0;j<n_model_var;++j){
-		post_var_t1[j] = post_mu_var(j,this->t[nT-1]);
+	for (j = 0; j < n_model_var; ++j){
+		post_var_t1[j] = post_mu_var(j, this->t[nT - 1]);
 	}
 	// Dynamic programing loop that goes backward in time from T->0
 	// Speed increase by precalculating values
-	for (i=nT-2;i>=0;i--){
+	for (i = nT - 2; i >= 0; --i){
 		#ifdef INFO
-		if (i%100==0) std::cout<<i<<std::endl;
+		if (i % 100 == 0) std::cout << i << std::endl;
 		#endif
 		setted_ub = false;
-		bound_ind = bound_strides*i;
-		ub[bound_ind] = g[n-1];
+		bound_ind = bound_strides * i;
+		ub[bound_ind] = g[n - 1];
 		lb[bound_ind] = g[0];
 		
 		//Speed increase by reducing array access
 		const double t_i = t[i];
-		const double cost_rho_dt = (cost[i]+rho)*dt;
-		for (j=0;j<n_model_var;++j){
-			post_var_t[j] = post_mu_var(j,t_i);
+		const double cost_rho_dt = (cost[i] + rho) * dt;
+		for (j = 0; j < n_model_var; ++j){
+			post_var_t[j] = post_mu_var(j, t_i);
 		}
 		// Loop over g(t)
-		for (j=0;j<n;++j){
+		for (j = 0; j < n; ++j){
 			v_explore[j] = 0.;
 			norm_p = 0.;
-			invg[curr_invg][j] = g2x(t_i,g[j],invg[fut_invg][j]);
+			invg[curr_invg][j] = g2x(t_i, g[j], invg[fut_invg][j]);
 			// Speed increase by reducing array access and precalculating values
 			const double* future_x = invg[fut_invg];
 			
 			// Compute P(g(t+dt)|g(t)) in two steps. First compute the exponents
-			for (k=0;k<n;++k){
+			for (k = 0; k < n; ++k){
 				double a = 0.;
 				double b = 0.;
 				double c = 0.;
 				double d = 0.;
-				for (prior_ind=0;prior_ind<n_model_var;++prior_ind){
-					const double mut = post_mu_mean(prior_ind,t_i,invg[curr_invg][j]);
-					const double mutdt = post_mu_mean(prior_ind,t[i+1],future_x[k]);
+				for (prior_ind = 0; prior_ind < n_model_var; ++prior_ind){
+					const double mut = post_mu_mean(prior_ind, t_i,
+                                                    invg[curr_invg][j]);
+					const double mutdt = post_mu_mean(prior_ind, t[i+1],
+                                                      future_x[k]);
 					const double vtdt = post_var_t1[prior_ind];
-					const double vt_plus_v = (post_var_t[prior_ind]*dt + model_var[prior_ind])*dt;
-					a+= prior_var_prob[prior_ind]*exp(-0.5*pow(future_x[k]-invg[curr_invg][j]-mut*dt,2)/(vt_plus_v));
-					b+= prior_var_prob[prior_ind]*sqrt(vtdt);
-					c+= prior_var_prob[prior_ind]*vtdt/model_var[prior_ind]*exp(-0.5*pow(mutdt,2)/vtdt);
-					d+= prior_var_prob[prior_ind]*sqrt(vt_plus_v);
+					const double vt_plus_v = (post_var_t[prior_ind] * dt +
+                                             model_var[prior_ind]) * dt;
+					a += prior_var_prob[prior_ind]*exp(-0.5 * pow(future_x[k] -
+                                                       invg[curr_invg][j] -
+                                                       mut*dt, 2) / vt_plus_v);
+					b += prior_var_prob[prior_ind] * sqrt(vtdt);
+					c += prior_var_prob[prior_ind] * vtdt /
+                         model_var[prior_ind] *
+                         exp(-0.5 * pow(mutdt, 2) / vtdt);
+					d += prior_var_prob[prior_ind] *
+                         sqrt(vt_plus_v);
 				}
-				p[k] = a*b/(c*d);
-				norm_p+= p[k];
-				v_explore[j]+= p[k]*value[k];
+				p[k] = a * b / (c * d);
+				norm_p += p[k];
+				v_explore[j] += p[k] * value[k];
 			}
 			// Divide the value of exploring by the normalization factor and discount the cost and rho
-			v_explore[j] = v_explore[j]/norm_p - cost_rho_dt;
+			v_explore[j] = v_explore[j] / norm_p - cost_rho_dt;
 			
 			#ifdef DEBUG
-			for (k=0;k<n-1;++k){
-				fprintf(prob_file,"%f\t",p[k]/norm_p);
+			for (k = 0; k < n - 1; ++k){
+				fprintf(prob_file, "%f\t", p[k] / norm_p);
 			}
-			fprintf(prob_file,"%f\n",p[k]/norm_p);
+			fprintf(prob_file, "%f\n", p[k] / norm_p);
 			if (j<n-1){
-				fprintf(v_explore_file,"%f\t",v_explore[j]);
+				fprintf(v_explore_file, "%f\t", v_explore[j]);
 			} else {
-				fprintf(v_explore_file,"%f\n",v_explore[j]);
+				fprintf(v_explore_file, "%f\n", v_explore[j]);
 			}
 			#endif
 		}
 		// Update temporal values
-		for (j=0;j<n_model_var;++j){
+		for (j = 0; j < n_model_var; ++j){
 			post_var_t1[j] = post_var_t[j];
 		}
-		curr_invg = (curr_invg+1)%2;
-		fut_invg = (fut_invg+1)%2;
+		curr_invg = (curr_invg + 1)%2;
+		fut_invg = (fut_invg + 1)%2;
 		// Value computation
 		previous_value_zone = -1;
 		current_value_zone = -1;
-		for (j=0;j<n;++j){
-			if (v1[j]>=v2[j] && v1[j]>=v_explore[j]){
+		for (j = 0; j < n; ++j){
+			if (v1[j] >= v2[j] && v1[j] >= v_explore[j]){
 				value[j] = v1[j];
 				current_value_zone = 1;
-			} else if (v2[j]>v1[j] && v2[j]>=v_explore[j]){
+			} else if (v2[j] > v1[j] && v2[j] >= v_explore[j]){
 				value[j] = v2[j];
 				current_value_zone = 2;
-			} else if (v_explore[j]>v1[j] && v_explore[j]>v2[j]){
+			} else if (v_explore[j] > v1[j] && v_explore[j] > v2[j]){
 				value[j] = v_explore[j];
 				current_value_zone = 0;
 			}

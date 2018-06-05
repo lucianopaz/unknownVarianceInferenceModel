@@ -27,8 +27,8 @@ lib64/*
 *.egg-info*
 
 # Fits directory
-fits_cognition/
-raw_data_dir/
+run/fits_cognition/*
+run/raw_data_dir/*
 *.tar
 *.tar.gz
 

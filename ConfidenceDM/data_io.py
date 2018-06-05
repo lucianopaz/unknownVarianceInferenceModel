@@ -307,7 +307,7 @@ def unique_subject_sessions(filter_by_experiment=None):
 	"""
 	package_logger.debug('Getting list of unique SubjectSession instances')
 	package_logger.debug('Input arg filter_by_experiment = {0}'.format(filter_by_experiment))
-	must_disable_and_reenable_logging = package_logger.isEnabledFor('DEBUG')
+	must_disable_and_reenable_logging = package_logger.isEnabledFor(logging.DEBUG)
 	output = []
 	experiments = [d for d in os.listdir(raw_data_dir) if os.path.isdir(os.path.join(raw_data_dir,d))]
 	for experiment in experiments:
@@ -321,7 +321,7 @@ def unique_subject_sessions(filter_by_experiment=None):
 			sessions = sorted(list(set([session_parser(f) for f in files])))
 			for session in sessions:
 				if must_disable_and_reenable_logging:
-					logging.disable('DEBUG')
+					logging.disable(logging.DEBUG)
 				output.append(SubjectSession(name=name,session=session,experiment=experiment,data_dir=subject_dir))
 				if must_disable_and_reenable_logging:
 					logging.disable(logging.NOTSET)
